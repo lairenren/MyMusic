@@ -8,7 +8,7 @@ source.include_exts = py,png,jpg,kv,atlas,ttf,mp3,wav,ogg,flac,m4a
 
 version = 1.0
 
-requirements = python3,kivy==2.3.0,pillow,mutagen,android
+requirements = python3,kivy==2.3.0,pillow,mutagen
 
 # 允许读取外部存储
 android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, READ_MEDIA_AUDIO
@@ -17,7 +17,7 @@ orientation = portrait
 fullscreen = 0
 
 # 支持主流手机架构
-android.archs = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a
 
 android.api = 33
 android.minapi = 21
