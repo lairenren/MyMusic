@@ -8,7 +8,7 @@ source.include_exts = py,png,jpg,kv,atlas,ttf,mp3,wav,ogg,flac,m4a
 
 version = 1.0
 
-requirements = python3==3.11.5,kivy==2.3.0,pillow,mutagen
+requirements = python3==3,kivy==2.3.1,pillow,mutagen
 
 # 允许读取外部存储
 android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, READ_MEDIA_AUDIO
