@@ -30,7 +30,8 @@ jobs:
       - name: Install buildozer
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install buildozer cython==0.29.36
+          pip install git+https://github.com/kivy/buildozer.git@master
+          pip install cython==0.29.36
 
       - name: Cache buildozer
         uses: actions/cache@v3
