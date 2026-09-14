@@ -3,7 +3,6 @@
 import os
 import re
 import time
-import sys
 
 from kivy.app import App
 from kivy.core.audio import SoundLoader
@@ -21,19 +20,33 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.filechooser import FileChooserListView
+from kivy.resources import resource_add_path, resource_find
 
-# ---------- 中文字体 ----------
-FONT_NAME = 'Roboto'   # 默认
+# ---------- 中文字体（Kivy 资源方式，兼容 Android） ----------
+FONT_NAME = 'Roboto'
+
+# 添加可能的资源路径
+try:
+    from kivy.utils import platform
+    if platform == 'android':
+        # Android 上资源解包在 app 目录
+        resource_add_path('.')
+        resource_add_path('./app')
+        resource_add_path('/data/data/com.example.mymusic/files/app')
+except Exception as e:
+    print(f"[字体路径] {e}")
+
 for candidate in ('NotoSansSC-Regular.ttf', 'font.ttf',
                   'NotoSansCJK-Regular.ttc', 'wqy-microhei.ttc'):
-    if os.path.exists(candidate):
-        try:
-            LabelBase.register(name='Chinese', fn_regular=candidate)
+    try:
+        found = resource_find(candidate)
+        if found:
+            LabelBase.register(name='Chinese', fn_regular=found)
             FONT_NAME = 'Chinese'
-            print(f"[字体] 已加载: {candidate}")
+            print(f"[字体] 已加载: {found}")
             break
-        except Exception as e:
-            print(f"[字体] 加载 {candidate} 失败: {e}")
+    except Exception as e:
+        print(f"[字体] 加载 {candidate} 失败: {e}")
 
 # ---------- mutagen（ID3 标签） ----------
 try:
@@ -407,7 +420,6 @@ KV = '''
             pos: self.pos
             size: self.size
 
-    # 顶部标题栏
     BoxLayout:
         size_hint_y: None
         height: dp(60)
@@ -455,7 +467,6 @@ KV = '''
             bold: True
             on_release: root.open_file_chooser()
 
-    # 标签切换
     BoxLayout:
         size_hint_y: None
         height: dp(40)
@@ -500,7 +511,6 @@ KV = '''
 
         Widget:
 
-    # 内容区
     FloatLayout:
         size_hint_y: 1
 
@@ -560,7 +570,6 @@ KV = '''
                     spacing: dp(6)
                     padding: dp(10), dp(10)
 
-    # 底部播放条
     BoxLayout:
         size_hint_y: None
         height: dp(110)
@@ -713,7 +722,6 @@ class MainLayout(BoxLayout):
         self.lyric_labels = []
         Clock.schedule_interval(self.update_tick, 0.25)
 
-    # ---------- 文件选择 ----------
     def open_file_chooser(self):
         if HAS_ANDROID:
             try:
@@ -765,7 +773,6 @@ class MainLayout(BoxLayout):
     def switch_tab(self, index):
         self.current_tab = index
 
-    # ---------- 列表 ----------
     def refresh_song_list(self):
         box = self.ids.song_list_box
         box.clear_widgets()
@@ -785,7 +792,6 @@ class MainLayout(BoxLayout):
             return '--:--'
         return f'{sec // 60:02d}:{sec % 60:02d}'
 
-    # ---------- 播放控制 ----------
     def play_song(self, index):
         if self.player.play(index):
             self.refresh_playing_ui()
@@ -836,12 +842,10 @@ class MainLayout(BoxLayout):
         self.player.seek(target)
         self.refresh_playing_ui()
 
-    # ---------- 定时器 ----------
     def update_tick(self, dt):
         if self.player.current_index < 0:
             return
 
-        # 自动下一首
         if self.player.is_playing and not self.player.is_busy() and not self.player.is_paused:
             self.player.next()
             self.refresh_playing_ui()
@@ -855,7 +859,6 @@ class MainLayout(BoxLayout):
 
         self.update_lyrics(pos)
 
-    # ---------- UI 刷新 ----------
     def refresh_playing_ui(self):
         idx = self.player.current_index
         if idx < 0 or idx >= len(self.player.playlist):
@@ -888,7 +891,6 @@ class MainLayout(BoxLayout):
             print(f'[封面保存失败] {e}')
             self.current_cover_path = ''
 
-    # ---------- 歌词 ----------
     def load_lyrics(self, lines):
         self.lyric_labels = []
         self.current_lyric_index = -1
